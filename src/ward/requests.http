@@ -1,0 +1,43 @@
+### Create a new supplier
+POST http://localhost:3000/api/supplier
+content-type: application/json
+
+{
+    "name":"Nhà cung cấp 2121",
+    "description": "Thức ăn cho mèo",
+    "phone": "0939131275",
+    "email": "nobita2@gmail.com",
+    "role": "Giám đốc",
+    "company_name": "TNHH Pawoo",
+    "company_address": "123 Cần Thơ",
+    "tax_number":"42345341"
+}
+
+###  Update Suppler
+PUT  http://localhost:3000/api/supplier/2
+content-type: application/json
+
+{   "id": 2,
+    "name": "Nhà cung cấp C",
+    "description": "Thức ăn cho gàz",
+    "phone": "0939131275",
+    "email": "nobita2@gmail.com",
+    "role": "Giám đốc",
+    "company_name": "TNHH Pawoo",
+    "company_address": "123 Cần Thơ",
+    "tax_number":"42345341"
+}
+
+### DELETE a supplier given id
+DELETE http://localhost:3000/api/supplier/2
+
+### Find a supplier
+GET http://localhost:3000/api/supplier
+
+### Find a supplier
+GET http://localhost:3000/api/supplier/2
+
+### Find all supplier
+GET http://localhost:3000/api/supplier?page=1
+
+### Find all supplier
