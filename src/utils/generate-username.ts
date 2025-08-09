@@ -53,7 +53,7 @@ export function removeVietnameseTones(str: string): string {
     str = str.trim();
     // Remove punctuations
     // Bỏ dấu câu, kí tự đặc biệt
-    str = str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'|\"|\&|\#|\[|\]|~|\$|_|`|-|{|}|\||\\/g, ' ');
+    str = str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\:|\;|\'|\"|\&|\#|\[|\]|~|\$|_|`|-|{|}|\||\\/g, ' ');
     return str;
 }
 
@@ -61,8 +61,8 @@ export function removeVietnameseTones(str: string): string {
 export const safeName = (name: string) => {
     return slugify(name, {
         lower: true,
-        strict: true, // Loại bỏ mọi ký tự không phải a-zA-Z0-9 và -
-        remove: /[*+~.()'"!:@\s]/g,
+        strict: false, // Loại bỏ mọi ký tự không phải a-zA-Z0-9 và -
+        remove: /[*+~()'"!:@\s]/g,
     });
 }
 

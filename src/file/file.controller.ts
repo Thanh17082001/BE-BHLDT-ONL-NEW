@@ -20,7 +20,8 @@ export class FileController {
   constructor(private readonly fileService: FileService) {}
 
   @Post()
-    @Roles(Role.TEACHER)
+    // @Roles(Role.TEACHER)
+  @Public() // Allow public access for file upload
   @ApiOperation({ summary: 'Upload file' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({

@@ -32,7 +32,8 @@ import { Voice } from 'src/voice/entities/voice.entity';
 import { RolesGuard } from 'src/role/role.guard';
 import { Roles } from 'src/role/role.decorator';
 import { fromPath } from "pdf2pic";
-import pdf from "pdf-parse";
+import * as pdf from 'pdf-parse';
+
 
 @Injectable()
 
@@ -310,40 +311,140 @@ export class FileService {
   //   }
   // }
 
-  async  convertPdfToImages(pdfPath: string): Promise<string[]> {
-  try {
-    const outputDir = path.join(__dirname, "../../public/images-convert");
-    await fs.mkdir(outputDir, { recursive: true });
+  // async  convertPdfToImages(pdfPath: string): Promise<string[]> {
+  // try {
+  //   const outputDir = path.join(__dirname, "../../public/images-convert");
+  //   await fs.mkdir(outputDir, { recursive: true });
 
-    // Tạo prefix duy nhất bằng timestamp
-    const timestamp = Date.now();
+  //   // Tạo prefix duy nhất bằng timestamp
+  //   const timestamp = Date.now();
 
-    // Đọc số trang
-    const pdfBuffer = await fs.readFile(pdfPath);
-    const pdfData = await pdf(pdfBuffer);
-    const totalPages = pdfData.numpages;
+  //   // Đọc số trang
+  //   const pdfBuffer = await fs.readFile(pdfPath);
+  //   const pdfData = await pdf(pdfBuffer);
+  //   const totalPages = pdfData.numpages;
 
-    const outputFiles: string[] = [];
+  //   const outputFiles: string[] = [];
 
-    for (let i = 1; i <= totalPages; i++) {
-      const filename = `${timestamp}_page${i}`;
+  //   for (let i = 1; i <= totalPages; i++) {
+  //     const filename = `${timestamp}_page${i}`;
+  //     const convert = fromPath(pdfPath, {
+  //       density: 150,
+  //       saveFilename: filename,
+  //       savePath: outputDir,
+  //       format: "png",
+  //       width: 800,
+  //       height: 1000,
+  //     });
+
+  //     const result = await convert(i);
+  //     const relativePath = path.relative(path.join(__dirname, "../../"), result.path);
+  //     outputFiles.push(relativePath.replace(/\\/g, "/"));
+  //   }
+
+  //   return outputFiles;
+  // } catch (error) {
+  //   throw new Error(`Convert PDF failed: ${error}`);
+  // }
+  // }
+  
+  async convertPdfToImages(pdfPath: string): Promise<string[]> {
+    try {
+      // Thư mục đầu ra
+      const outputDir = path.join(__dirname, "../../public/images-convert");
+      await fs.mkdir(outputDir, { recursive: true });
+
+      // Prefix duy nhất
+      const timestamp = Date.now();
+
+      // Đọc số trang
+      const pdfBuffer = await fs.readFile(pdfPath);
+      const pdfData = await pdf(pdfBuffer);
+      const totalPages = pdfData.numpages;
+
+      const outputFiles: string[] = [];
+
+      // Thiết lập option convert
       const convert = fromPath(pdfPath, {
         density: 150,
-        saveFilename: filename,
+        saveFilename: "temp", // tên tạm, lát nữa rename
         savePath: outputDir,
         format: "png",
         width: 800,
         height: 1000,
+        quality: 100,
       });
 
-      const result = await convert(i);
-      const relativePath = path.relative(path.join(__dirname, "../../"), result.path);
-      outputFiles.push(relativePath.replace(/\\/g, "/"));
-    }
+      const publicPath = path.resolve(__dirname, "../../public/");
+      console.log(publicPath);
 
-    return outputFiles;
-  } catch (error) {
-    throw new Error(`Convert PDF failed: ${error}`);
+      // Lặp qua từng trang
+      for (let i = 1; i <= totalPages; i++) {
+        const result = await convert(i, { responseType: "image" });
+console.log('thienthanh');
+        const finalFilename = `${timestamp}_page${i}.png`;
+        const finalPath = path.join(outputDir, finalFilename);
+
+        await fs.rename(result.path, finalPath);
+
+        // Trả về path relative
+        const relativePath = path.relative(publicPath, finalPath).split(path.sep).join("/");
+        outputFiles.push(relativePath);
+      }
+
+      console.log("PDF conversion completed.");
+      return outputFiles;
+    } catch (error) {
+      console.error("Error converting PDF to images:", error);
+      throw new Error(`Convert PDF failed: ${error}`);
+    }
   }
-}
+
+
+
+  async convertPdfToImages222(pdfPath: string, outputDir: string): Promise<string[]> {
+    try {
+      await fs.mkdir(outputDir, { recursive: true });
+      console.log(pdfPath);
+
+      const pdfBuffer = await fs.readFile(pdfPath);
+      const pdfData = await pdf(pdfBuffer);
+      const totalPages = pdfData.numpages;
+
+      const timestamp = Date.now();
+      const options = {
+        density: 100,
+        saveFilename: "temp",
+        savePath: outputDir,
+        format: "png",
+        width: 1000,
+        height: 1000,
+        quality: 100,
+      };
+
+      const convert = fromPath(pdfPath, options);
+      const outputFiles: string[] = [];
+      const publicPath = path.resolve(__dirname, '../../public/');
+
+      for (let page = 1; page <= totalPages; page++) {
+        const result = await convert(page, { responseType: "image" });
+
+        const finalFilename = `${timestamp}_page${page}.png`;
+        const finalPath = path.join(outputDir, finalFilename);
+
+        await fs.rename(result.path, finalPath);
+
+        // Chuáº©n hÃ³a path relative so vá»›i thÆ° má»¥c public
+        const relativePath = path.relative(publicPath, finalPath).split(path.sep).join('/');
+        outputFiles.push(relativePath);
+      }
+
+      console.log("PDF conversion completed.");
+      return outputFiles;
+    } catch (error) {
+      console.error("Error converting PDF to images:", error);
+      throw error;
+    }
+  }
+
 }
